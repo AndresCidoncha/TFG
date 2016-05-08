@@ -1,0 +1,91 @@
+; ActivMedia Software Suite preference file.  Lines starting with ; are comments
+
+[Common]
+AutoPort 
+RobotPort 
+RobotSpeed Safe
+AmigoBotDir D:\Downloads\AmigoSounds\Basic Suite\
+MapsDir D:\Downloads\AmigoSounds\Basic Suite\Maps\
+ActivityDir D:\Downloads\AmigoSounds\Basic Suite\Colbert\
+AMSDir D:\Downloads\AmigoSounds\Basic Suite\Sounds\
+TempDir C:\Users\ANDRS~1\AppData\Local\Temp\
+Units Metric
+DefNetServer webpion.mobilerobots.com
+
+[Navigator]
+DefaultMap 
+FrameGrab true
+ShowStartup true
+AutoConnect false
+ShowMapWarning true
+MapAreaMode false
+ShowSonar Current
+ShowPath true
+ShowLocPoints true
+PlaySounds true
+JoyStickMaxX 
+JoyStickMinX 
+JoyStickMaxY 
+JoyStickMinY 
+JoyStickCenX 
+JoyStickCenY 
+PXCFrameGrabber false
+PALCamera false
+InputSoundCardNum 0
+InputSoundCardStr /dev/dsp
+OutputSoundCardNum 0
+OutputSoundCardStr /dev/dsp
+FrameGrabberNum -1
+FrameGrabberStr auto
+FGBrightness 20
+FGContrast 100
+DefaultSimType None
+FlipImage false
+ShowGrid true
+ShowAxis true
+GridSize 1.0
+ShowRelocate true
+
+[Mapper]
+ShowTools true
+ShowRulers true
+SnapToGrid false
+SnapToAxis true
+Attachment Ask
+ShowGrid true
+ShowAxis true
+GridSize 1.0
+ShowRelocate true
+
+[Sound]
+ShowSoundLengths false
+SoundsDir D:\Downloads\AmigoSounds\Basic Suite\Sounds\
+
+[Deprecated]
+ConType 500
+NetName Navigator
+MaxUsers 5
+ServerPort 5757
+NetAutoPort General
+NetRobotSpeed General
+NetPlaySounds General
+AutoStartServer false
+NetAutoConnect true
+ShowMainDisplay true
+NetShowVideo true
+SendVideo true
+SendAudio false
+ReceiveAudio true
+ControllerIdle 5
+LockControl false
+AllowRelocate false
+AllowGuestLogin false
+
+[WorldPass]
+CliSendAudio false
+CliReceiveAudio true
+CliReceiveVideo true
+CliVideoQuality 5
+PrefGuestName 
+
+[NetUserList]

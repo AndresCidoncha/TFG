@@ -1,0 +1,30 @@
+libaria (2.8.0+repack-1) unstable; urgency=low
+
+  * New upstream version (2.8.0).
+
+ -- Srećko Jurić-Kavelj <srecko.juric-kavelj@fer.hr>  Fri, 20 Sep 2013 19:44:53 +0200
+
+libaria (2.7.5.2+repack-3) unstable; urgency=low
+
+  * Removed statically linked library.
+  * Corrected Multi-Arch config for the doc package.
+    Also, generating documentation in a build-indep target.
+  * Building python-ariapy package (SWIG generated bindings)
+  * Building libaria-demo package
+  * Added test target for dh_autotest.
+
+ -- Srećko Jurić-Kavelj <srecko.juric-kavelj@fer.hr>  Wed, 19 Jun 2013 11:17:59 +0200
+
+libaria (2.7.5.2+repack-2) unstable; urgency=low
+
+  * libc6 dependency dropped
+  * Converted to Multi-Arch
+
+ -- Srećko Jurić-Kavelj <srecko.juric-kavelj@fer.hr>  Thu, 02 May 2013 18:41:11 +0200
+
+libaria (2.7.5.2+repack-1) unstable; urgency=low
+
+  * Initial release (Closes: #703357)
+  * Repacked the original tarball to remove unnecesary non-source files.
+
+ -- Srećko Jurić-Kavelj <srecko.juric-kavelj@fer.hr>  Sat, 30 Mar 2013 17:52:50 +0100

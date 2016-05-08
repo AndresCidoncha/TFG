@@ -1,0 +1,8 @@
+fix-upstream-makefile.patch
+install.patch
+hardening.patch
+multiarch.patch
+python.patch
+examples.patch
+test.patch
+linkage.patch

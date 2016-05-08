@@ -1,0 +1,33 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+export INSTALL_DIR=/usr
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ --with python2 --parallel
+
+override_dh_auto_build-indep:
+	$(MAKE) -C . docs
+
+override_dh_auto_install-indep: ;
+
+override_dh_auto_test-indep: ;
+
+override_dh_installchangelogs:
+	dh_installchangelogs Changes.txt upstream
+
+override_dh_installdocs-indep:
+	dh_installdocs -Xfigures/ -Xoptions/ -X.dox
+
+get-orig-source: MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+get-orig-source:
+	wget http://robots.mobilerobots.com/ARIA/download/current/ARIA-2.8.0+gcc4.6.tgz
+	tar xzf ARIA-2.8.0+gcc4.6.tgz
+	mv Aria-2.8.0 libaria-2.8.0.orig
+	cd libaria-2.8.0.orig && patch -p1 < $(MAKEFILE_DIR)patches/fix-upstream-makefile.patch
+	make -C libaria-2.8.0.orig fullCleanAll cleanDoc cleanParams cleanSwigJava
+	cd libaria-2.8.0.orig && patch -p1 -R < $(MAKEFILE_DIR)patches/fix-upstream-makefile.patch
+	tar cjf libaria_2.8.0+repack.orig.tar.bz2 libaria-2.8.0.orig/
+	rm -rf libaria-2.8.0.orig/ ARIA-2.8.0+gcc4.6.tgz

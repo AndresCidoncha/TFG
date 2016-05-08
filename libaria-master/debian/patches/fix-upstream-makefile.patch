@@ -1,0 +1,113 @@
+Description: Fix upstream build system.
+ Since the upstream tarball already contains build results,
+ Makefile and utils were modified to enable full clean and rebuild.
+Forwarded: Reed Hedges <reed.hedges@adept.com>
+Author: Srećko Jurić-Kavelj <srecko.juric-kavelj@fer.hr>
+--- a/Makefile
++++ b/Makefile
+@@ -308,10 +308,7 @@
+ docs: doc
+ doc: docs/index.html
+ docs/index.html: $(SRC_FILES) $(HEADER_FILES) $(EXAMPLES_CPP) docs/overview.dox docs/options/all_options.dox docs/params.dox
+-	@echo Removing old documentation...
+-	$(MAKE) cleanDoc
+-	@echo Running dist/make-doc.sh to generate HTML API documentation...
+-	dist/make-doc.sh dev ARIA_DIST_NO_NTP=1
++	doxygen doxygen.conf
+ 	
+ arnetworking_swig:
+ 	$(MAKE) -C ArNetworking java python
+@@ -395,7 +392,11 @@
+ 	-rm -f $(MOD_EXAMPLES)
+ 
+ cleanDoc:
+-	-rm  docs/*.html docs/*.png docs/doxygen.css
++	find docs/ -path docs/figures -prune -o -type d \! -name docs -exec rm -rf \{\} +
++	find docs/ -path docs/figures -prune -o \! \( -name "*.dox" -o -name docs \) -execdir rm \{\} +
++
++cleanParams:
++	-rm -rf params
+ 
+ cleandoc: cleanDoc
+ 
+@@ -440,8 +441,6 @@
+ cleanAll: clean 
+ 	rm -f lib/lib*.so*
+ 	for dir in `find . -maxdepth 1 -name "Ar*" -xtype d`; do cd $$dir; make clean; cd ..; done
+-	$(MAKE) -C ArVideo cleanAll
+-	$(MAKE) -C ArNetworking cleanAll
+ 
+ fullCleanAll: cleanAll cleanJava cleanPython 
+ 	rm -f lib/lib*.so*
+@@ -450,13 +449,14 @@
+ 
+ 
+ 
++
+ params: utils/makeParams$(binsuffix)
+ 	-mkdir params
+-	utils/makeParams$(binsuffix)
++	LD_LIBRARY_PATH=lib utils/makeParams$(binsuffix)
+ 
+ CommandLineOptions.txt.in docs/options/all_options.dox: utils/genCommandLineOptionDocs$(binsuffix) src/ArSimpleConnector.cpp src/ArGPSConnector.cpp src/ArTCM2.cpp
+ 	-mkdir docs/options
+-	utils/genCommandLineOptionDocs$(binsuffix)
++	LD_LIBRARY_PATH=lib utils/genCommandLineOptionDocs$(binsuffix)
+ 
+ alllibs: allLibs
+ 
+--- a/utils/makeParams.cpp
++++ b/utils/makeParams.cpp
+@@ -38,6 +38,7 @@
+ {
+   Aria::init();
+   //ArLog::init(ArLog::StdOut, ArLog::Verbose);
++  Aria::setDirectory(".");
+ 
+   makePref(new ArRobotAmigo);
+   makePref(new ArRobotAmigoSh);
+--- a/ArNetworking/Makefile
++++ b/ArNetworking/Makefile
+@@ -70,7 +70,7 @@
+ TARGETS:=../lib/libArNetworking.so examples
+ 
+ EXAMPLES_CPP:=$(shell find examples -name "*.$(CFILEEXT)" | grep -v Mod.cpp)
+-EXAMPLES:=$(patsubst %.$(CFILEEXT),%,$(EXAMPLES_CPP))
++EXAMPLES:=$(patsubst %.$(CFILEEXT),%,$(EXAMPLES_CPP)) $(patsubst %.$(CFILEEXT),%Static,$(EXAMPLES_CPP))
+ 
+ TESTS_CPP:=$(shell find tests -name "*.$(CFILEEXT)" | grep -v Mod.cpp)
+ TESTS:=$(patsubst %.$(CFILEEXT),%,$(TESTS_CPP))
+@@ -104,20 +104,22 @@
+ clean: cleanExamples
+ 	rm -f ../lib/libArNetworking.so ../lib/libArNetworking.a \
+ 	`find . -name core` $(OFILES) `find . -name '*~'`
++	rm -f genCommandLineOptionDocs
+ 
+ cleanPython:
+ 	-rm ../python/_ArNetworkingPy.so
+ 	-rm ../python/ArNetworkingPy.py
+ 	-rm ../python/ArNetworkingPy.pyc
+ 	-rm ../python/ArNetworkingPy_wrap.cpp
++	-rm ../python/ArNetworkingPy_wrap.h
+ 	-rm ../obj/ArNetworkingPy_wrap.o
+ 
+ cleanExamples:
+ 	rm -f $(EXAMPLES)
+ 
+ cleanDoc:
+-	-rm -f docs/*.html docs/*.png docs/*.png
+-	-rm -rf docs/tmp
++	find docs/ -path docs/figures -prune -o -type d \! -name docs -exec rm -rf \{\} +
++	find docs/ -path docs/figures -prune -o \! -name docs -execdir rm \{\} +
+ 
+ fullClean: clean cleanExamples cleanJava cleanPython cleanDoc
+ 
+@@ -184,7 +186,7 @@
+ 
+ CommandLineOptions.txt.in docs/options/all_options.dox: genCommandLineOptionDocs
+ 	-mkdir docs/options
+-	./genCommandLineOptionDocs
++	LD_LIBRARY_PATH=../lib ./genCommandLineOptionDocs
+ 
+ genCommandLineOptionDocs: ../utils/genCommandLineOptionDocs.cpp ../lib/libAria.so ../lib/libArNetworking.so src/ArServerSimpleOpener.cpp src/ArClientSimpleConnector.cpp src/ArClientSwitchManager.cpp
+ 	$(CXX) $(CXXFLAGS) -DFOR_ARNETWORKING $(CXXINC) $< -o $@ $(CXXLINK)
