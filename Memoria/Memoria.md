@@ -58,6 +58,17 @@
 
 **16.** El encoder del M2 parece tener problemas comparado con el del M1, tengo que consultarlo con Jonay, además del uso del Arduino Bridge.
 
+**17.** El problema es de cosa de las interrupciones, usaré mi Leonardo/Mega que me deje Jonay. Deberia modificar rosserial_python node_serial.py para dejarlo a mi gusto. Los ultrasonidos se obtienen de la electronica mediante los pines y usando señales de selección:
+    * 1 -> SEL1
+    * 2 -> SEL2
+    * 3 -> SEL3
+    * 4 -> BINH
+    * 5 -> INIT
+    * 6,7 -> VCC
+    * 8,9 -> GND
+    * 10 -> ECHO
+ 
+
 [pioneer3teleop]:http://answers.ros.org/question/92151/how-to-teleop-pioneer3/
 [odroid]: http://www.hardkernel.com/main/products/prdt_info.php?g_code=G138745696275
 [amigobot]: http://www.mobilerobots.com/ResearchRobots/AmigoBot.aspx
