@@ -46,6 +46,7 @@
 **11.** He encontrado [como teleoperar el pioneer3][pioneer3teleop] pero no funciona. 
 
 **12.** rosrun rqt_graph rqt_graph muestra la conexion de los nodos de ROS. Jonay me ha enseñado como teleoperar, hay dos opciones (habiendo arrancado RosAria antes):
+
     * rosrun turtlebot_teleop turtlebot_teleop_key /turtlebot_teleop/cmd_vel:=/RosAria/cmd_vel
     * rosrun turtlesim_teleop turtlesim_teleop_key /turtlesim_teleop/cmd_vel:=/RosAria/cmd_vel
 
@@ -59,6 +60,7 @@
 **16.** El encoder del M2 parece tener problemas comparado con el del M1, tengo que consultarlo con Jonay, además del uso del Arduino Bridge.
 
 **17.** El problema es de cosa de las interrupciones, usaré mi Leonardo/Mega que me deje Jonay. Deberia modificar rosserial_python node_serial.py para dejarlo a mi gusto. Los ultrasonidos se obtienen de la electronica mediante los pines y usando señales de selección:
+
     * 1 -> SEL1
     * 2 -> SEL2
     * 3 -> SEL3
