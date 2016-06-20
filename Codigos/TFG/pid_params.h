@@ -12,7 +12,7 @@ int Ko = 50;
 /* Define the robot paramters */
 int cpr = 9550; // Encoder ticks per revolution for the Pololu 131:1 motor
 float wheelDiameter = 0.1; // meters
-float wheelTrack = 0.33; // meters
+float wheelTrack = 0.235; // separacion
 float ticksPerMeter = cpr / (PI * wheelDiameter);
 
 /* Stop the robot if it hasn't received a movement command

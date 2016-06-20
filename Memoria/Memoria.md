@@ -56,7 +56,7 @@ En odroid ademas:
 
 **13.** Bueno no todo iba a ser tan positivo. Cuando parecía que ya iba a poder teleoperar, la electrónica del robot ha muerto.
 
-![DramaticMusic](https://media.giphy.com/media/8nhgZZMKUicpi/giphy.gif)
+<center>![DramaticMusic](https://media.giphy.com/media/8nhgZZMKUicpi/giphy.gif)
 
 **14.** Se ha sustituido por un conjunto de Arduino+MóduloPuenteH (me falta conectar los [encoders al arduino][encodersarduino]) y debo mirar como usar el nodo de ros [rosserial_arduino][rosserialarduino]. Me apena perder el sonido y la información de los sonares pero Jonay dice que iba a intentar arreglar esto último.
 
@@ -65,14 +65,17 @@ En odroid ademas:
 **16.** El encoder del M2 parece tener problemas comparado con el del M1, tengo que consultarlo con Jonay, además del uso del Arduino Bridge.
 
 **17.** El problema es de cosa de las interrupciones, usaré mi Leonardo/Mega que me deje Jonay. Deberia modificar rosserial_python node_serial.py para dejarlo a mi gusto. Los ultrasonidos se obtienen de la electronica mediante los pines y usando señales de selección:
-    * 1 -> SEL1
-    * 2 -> SEL2
-    * 3 -> SEL3
-    * 4 -> BINH
-    * 5 -> INIT
-    * 6,7 -> VCC
-    * 8,9 -> GND
-    * 10 -> ECHO
+
+    PIN -> FUNC -> ARDUINO
+    ----------------------
+      1   -> SEL1 -> 8
+      2   -> SEL2 -> 9
+      3   -> SEL3 -> 10
+      4   -> BINH -> ?
+      5   -> INIT -> 11
+      6,7 -> VCC  -> 5V
+      8,9 -> GND  -> GND
+      10  -> ECHO -> 12
 
 **18.** Aprovechare los leds originales del amigo bot, ya que quedan bien integrados y para que poner nuevos teniendo estos. Funcionan a 1,5V y puedo usar la faja de datos original para conectarlos. He realizado pruebas del rosserial y logro crear un topico, pero tengo que ver bien como suscribirme a uno y procesar el mensaje de entrada, ademas de mirar los distintos tipos de mensaje.
 
@@ -81,12 +84,29 @@ En odroid ademas:
 **20.** Volvemos al ruedo, utilizando de base el sketch de ArduinoBridge, puedo obtener la potencia para cada motor. Solo he de integrar los encoders propios y cambiar el codigo para utilizar el puente H.
 
 **21.** Conexiones del modulo de leds + switch:
-            |----|
-|D2-/D3-|D1+|SW1o|---------|---|
-|D3+|SW2o|D2+|D1-/SW2i/SW1i|---|
+
+    PIN ->   FUNCTION   -> ARDUINO
+    ------------------------------
+      1  -> D2-/D3-       -> GND
+      2  -> D1+           -> A1
+      3  -> SW1o          -> RST
+      4  -> ?
+      5  -> ?
+      6  -> D3+           -> A0
+      7  -> SW2o          -> A2
+      8  -> D2+           -> 13
+      9  -> D1-/SW2i/SW1i -> GND
+      10 -> ?
 
 Uso SW1 como reinicio del Arduino.
 
+**22.** He estado trasteando, no logro que me devuelva info los sonares. Me faltan librerias y demas cosas para poder usar el arduino_diff_drive. Tendré que acudir a Jonay para despejar ese par de dudas. Mientras, he encontrado un enlace de un tipo que dicen que es bastante bueno, trata sobre [SLAM 2D con ROS y Kinect][2dSlamKinect]. Me quedan 6 pines libres (4,5,12,A3,A4,A5), si al final llegara a usar los sonares, los usaria todos, por lo que en caso de necesitar algo adicional, deberia tirar de un MEGA.
+
+**23.** Bueno ya esta el codigo, solo me queda arreglar las librerias. Tengo que pasar los motores a una clase, quedara mucho mas limpio. Aparte, los sonares tengo que dejar INIT encendido hasta recoger el ECHO, [mirar esta tabla][tablaTexasSonar]por lo que no me vale la libreria.
+
+**24.** Codigo listo, lo que he hecho ha sido quitar el OdomLite y tirar directamente del paquete de odometria de ROS. Basicamente lo que he hecho es lo que hace el con el codigo [OdomliteToOdom.cpp](https://github.com/SimonBirrell/ros_arduino_diff_drive/blob/master/src/odomlite_to_odom.cpp). He creado una clase para el conjunto motor+encoder (*MotorEncoder*) y otra para la electronica en general (*AmigoBot*). He intentado limpiar y simplificar un poco,
+tengo pendiente comprobar que rule, que esa es otra, ahora el IDE me decia que no habia
+memoria suficiente en el Arduino...
 
 [pioneer3teleop]:http://answers.ros.org/question/92151/how-to-teleop-pioneer3/
 [odroid]: http://www.hardkernel.com/main/products/prdt_info.php?g_code=G138745696275
@@ -104,3 +124,5 @@ Uso SW1 como reinicio del Arduino.
 [rosarduinobridge]: https://github.com/hbrobotics/ros_arduino_bridge/tree/indigo-devel
 [arduinoserialpublish]: http://wiki.ros.org/rosserial_arduino/Tutorials/Hello%20World
 [arduinoserialsub]: http://wiki.ros.org/rosserial_arduino/Tutorials/Blink
+[2dSlamKinect]: http://www.hessmer.org/blog/2011/04/10/2d-slam-with-ros-and-kinect/
+[tablaTexasSonar]: http://www.ti.com/lit/ds/symlink/tl851.pdf
