@@ -1,19 +1,31 @@
-/* MotorEncoder class, for clean interaction with a PWM controlled motor and the
-associate encoder. Use the Encoder Library of Paul Stoffregen
-http://www.pjrc.com/teensy/td_libs_Encoder.html
-By: Andrés Cidoncha Carballo <andrescidonchacarballo@gmail.com>
-LICENSED UNDER GNU v3 */
+/***********************************************************************************
+*
+* MotorEncoder.h
+*
+***********************************************************************************
+*
+* AUTORES
+* Andrés Cidoncha Carballo
+*
+* FECHA
+* 25/06/2016
+*
+* DESCRIPCION
+* Clase para representar el conjunto motor+encoder. Utiliza la libreria Encoder
+* http://www.pjrc.com/teensy/td_libs_Encoder.html
+* LICENSED UNDER GNU v3
+************************************************************************************/
 
 #include <Encoder.h>
 
 class MotorEncoder{
     private:
         uint8_t IN1, IN2, ENABLE;
-        Encoder encoder;
+        Encoder* encoder;
     public:
         MotorEncoder(uint8_t IN1PIN, uint8_t IN2PIN, uint8_t ENABLEPIN,
             uint8_t ENCPIN1, uint8_t ENCPIN2){
-                encoder = Encoder(ENCPIN1, ENCPIN2);
+                encoder = new Encoder(ENCPIN1, ENCPIN2);
                 IN1 = IN1PIN;
                 IN2 = IN2PIN;
                 ENABLE = ENABLEPIN;
@@ -29,18 +41,19 @@ class MotorEncoder{
         void reset();
         void setSpeed(uint8_t speed);
         void reverse();
-}
+
+};
 
 int32_t MotorEncoder::read(void){
-    return encoder.read();
+    return encoder->read();
 }
 
 void MotorEncoder::write(int32_t position){
-    encoder.write(position);
+    encoder->write(position);
 }
 
 void MotorEncoder::reset(void){
-    encoder.write(0);
+    encoder->write(0);
 }
 
 void MotorEncoder::setSpeed(uint8_t speed){

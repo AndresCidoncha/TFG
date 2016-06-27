@@ -1,14 +1,28 @@
+/***********************************************************************************
+*
+* SketchAmigoBot.ino
+*
+***********************************************************************************
+*
+* AUTORES
+* Andrés Cidoncha Carballo
+*
+* FECHA
+* 25/06/2016
+*
+* DESCRIPCION
+* Sketch principal para el Arduino MEGA. Encargado de publicar y suscribirse a los topics
+* Basado en el proyecto ros_arduino_diff_drive https://github.com/SimonBirrell/ros_arduino_diff_drive
+************************************************************************************/
+
 /*********************************LIBRARIES************************************/
 /* Include the appropriate ROS headers */
 #include <ros.h>
-#include <ros/time.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/Quaternion.h>
 #include <nav_msgs/Odometry.h>
 #include <tf/transform_broadcaster.h>
-#include <std_msgs/UInt32.h>
 #include <math.h> /* We need sin and cos for odometry calcuations */
-#include <Encoder.h> /* Encoders library */
 #include "pid_params.h" /* Load the custom typedefs for tracking encoder info */
 #include "AmigoBot.h" /* AmigoBot Robot Class */
 /******************************************************************************/
@@ -18,6 +32,8 @@
 #define PID_UPDATE_RATE         30     // Hz
 #define ODOM_PUBLISH_RATE       10     // Hz
 /******************************************************************************/
+
+void cmdVelCb(const geometry_msgs::Twist& msg);
 
 /**********************************OBJECTS*************************************/
 /* Structs defined in PIDTypes.h */
@@ -34,7 +50,7 @@ ros::Publisher odomPub("/odom", &odom_msg);
 ros::Subscriber<geometry_msgs::Twist> cmdVelSub("/cmd_vel", &cmdVelCb);
 
 /* The Robot Object */
-AmigoBot robot();
+AmigoBot* robot;
 /******************************************************************************/
 
 /*********************************VARIABLES************************************/
@@ -50,7 +66,7 @@ unsigned char moving = 0; // is the base in motion?
 /**********************************METHODS*************************************/
 /* Convert meters per second to ticks per time frame */
 int SpeedToTicks(float v) {
-      return int(v * cpr / (PID_RATE * PI * wheelDiameter));
+      return int(v * cpr / (PID_UPDATE_RATE * PI * wheelDiameter));
 }
 
 /* The callback function to convert Twist messages into motor speeds */
@@ -59,11 +75,13 @@ void cmdVelCb(const geometry_msgs::Twist& msg) {
     float th = msg.angular.z; // rad/s
     float spd_left, spd_right;
 
+    robot->busy();
+
     lastMotorCommand = millis(); /* Reset the auto stop timer */
 
     if (x == 0 && th == 0) {
         moving = 0;
-        robot.stopMotors();
+        robot->stopMotors();
         return;
     }
 
@@ -88,6 +106,8 @@ void cmdVelCb(const geometry_msgs::Twist& msg) {
     /* Convert speeds to encoder ticks per frame */
     leftPID.TargetTicksPerFrame = SpeedToTicks(leftPID.TargetSpeed);
     rightPID.TargetTicksPerFrame = SpeedToTicks(rightPID.TargetSpeed);
+
+    robot->ready();
 }
 
 /* PID routine to compute the next motor commands */
@@ -116,8 +136,8 @@ void doPID(SetPointInfo * p) {
 
 /* Read the encoder values and call the PID routine */
 void updatePID() {
-  leftPID.Encoder = robot.leftMotor.read();
-  rightPID.Encoder = robot.rightMotor.read();
+  leftPID.Encoder = robot->leftMotor->read();
+  rightPID.Encoder = robot->rightMotor->read();
 
   /* Record the time that the readings were taken */
   odomInfo.encoderTime = millis();
@@ -130,7 +150,7 @@ void updatePID() {
   doPID(&leftPID);
   doPID(&rightPID);
 
-  setSpeeds(leftPID.output, rightPID.output); /* Set the motor speeds */
+  robot->setSpeeds(leftPID.output, rightPID.output); /* Set the motor speeds */
 }
 
 /* Calculate the odometry update and publish the result */
@@ -224,13 +244,14 @@ void clearPID() {
 
 void clearAll() {
   clearPID();
-  robot.resetEncoders();
+  robot->resetEncoders();
 }
 /******************************************************************************/
 
 /***********************************SETUP**************************************/
 void setup() {
   Serial.begin(57600);
+  robot = new AmigoBot();
   /* Set the target speeds in meters per second */
   leftPID.TargetSpeed = 0.0;
   rightPID.TargetSpeed = 0.0;
@@ -240,7 +261,7 @@ void setup() {
   rightPID.TargetTicksPerFrame = SpeedToTicks(rightPID.TargetSpeed);
 
   /* Zero out the encoder counts */
-  robot.resetEncoders();
+  robot->resetEncoders();
 
   /* Initialize the ROS node */
   nh.initNode();
@@ -254,7 +275,7 @@ void setup() {
   /* Activate the Twist subscriber */
   nh.subscribe(cmdVelSub);
 
-  robot.ready();
+  robot->ready();
 }
 /******************************************************************************/
 
@@ -274,7 +295,7 @@ void loop() {
 
   /* AUTOSTOP? */
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    setSpeeds(0, 0);
+    robot->setSpeeds(0, 0);
     moving = 0;
   }
 
